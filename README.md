@@ -1,61 +1,76 @@
-# 🚀 Reverse Proxy Multi-Container Docker Setup
+# Reverse Proxy App (CI/CD Version)
 
-This project demonstrates a **Production-style Multi-Container Setup** using **Docker Compose** with:
-- ✅ Frontend served by **Nginx**
-- ✅ Backend API built with **Flask (Python)**
-- ✅ **Reverse Proxy** to serve both Frontend and Backend on a single port (`:80`)
+A simple Multi-Container Application with Backend, Frontend, and Nginx Reverse Proxy, deployed manually or via GitHub Actions CI/CD workflow.
 
 ---
 
-## 📂 Project Structure
+## Table of Contents
+
+1. [Project Structure](#project-structure)  
+2. [Prerequisites](#prerequisites)  
+3. [Setup Instructions](#setup-instructions)  
+4. [Manual Deployment](#manual-deployment)  
+5. [CI/CD Deployment](#ci-cd-deployment)  
+6. [Usage](#usage)
+
+---
+
+## Project Structure
+
+```text
 reverse-proxy-app/
 ├── backend/
-│ ├── app.py
-│ ├── Dockerfile
-│ └── requirements.txt
+│   ├── app.py
+│   ├── Dockerfile
+│   └── requirements.txt
 ├── frontend/
-│ ├── index.html
-│ └── Dockerfile
+│   ├── index.html
+│   └── Dockerfile
 ├── nginx/
-│ ├── nginx.conf
-│ └── Dockerfile
+│   ├── nginx.conf
+│   └── Dockerfile
 └── docker-compose.yml
 
----
+Prerequisites
+	Docker
+	Docker Compose
+	Git
+	Access to AWS EC2 instance for deployment
+	GitHub account for CI/CD workflow
 
-## 🔹 Services
-	| Service      | Port | Description                    |
-	|--------------|------|--------------------------------|
-	| **Frontend** | 80   | Static HTML site via Nginx     |
-	| **Backend**  | 5000 | Flask API (proxied via Nginx)  |
-	| **Nginx**    | 80   | Reverse Proxy for Frontend/API |
+Setup Instructions
+	Clone the repository:
+		git clone git@github.com:hmurafique/reverse-proxy-app-ci-cd.git
+		cd reverse-proxy-app-ci-cd
 
----
+	Create .env files if needed for environment variables.
 
-## ⚙️ How It Works
-- `Nginx` acts as a **reverse proxy**:
-  - `/` → Frontend Container
-  - `/api` → Backend Container
-- All traffic goes through a **single port (80)**, making it production-friendly.
+Manual Deployment
+	Build and run containers:
+		docker-compose up -d --build
 
----
+	Stop containers:
+		Stop containers:
 
-## 🚀 Getting Started
+Access Frontend at http://<EC2_PUBLIC_IP>:80
 
-### 1️⃣  Clone the Repository
-	git clone https://github.com/<your-username>/reverse-proxy-app.git
-	cd reverse-proxy-app
+CI/CD Deployment
+	Add secrets in GitHub repository:
+	EC2_SSH_KEY → Private key of EC2
+	EC2_HOST → EC2 public IP
+	EC2_USER → EC2 username (usually ubuntu)
+	Workflow .github/workflows/deploy.yml triggers automatically on main branch push:
+		ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "bash /home/ubuntu/deploy.sh"
 
-### 2️⃣  Build & Run
-	docker-compose up -d --build
+Push changes to main branch:
+	git add .
+	git commit -m "Trigger CI/CD workflow"
+	git push origin main
 
-### 3️⃣  Test in Browser
-	Frontend: http://<EC2-IP>/
-	Backend (API): http://<EC2-IP>/api
+GitHub Actions workflow will deploy the latest code to EC2.
 
-🔥 Stopping the Containers
-	docker-compose down
-
-# Deployment Test
-# Workflow Test
-# Test CI/CD Workflow
+Usage
+	Frontend: http://<EC2_PUBLIC_IP>:80
+	Backend (API): http://<EC2_PUBLIC_IP>:5000/api
+	Nginx Reverse Proxy handles routing between Frontend and Backend.
+		
